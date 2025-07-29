@@ -7,10 +7,12 @@ import (
 	"go-cqrs/internal/query"
 )
 
+// Validator defines the interface for query validation middleware.
 type Validator interface {
 	ValidateQuery(ctx context.Context, q query.Query) error
 }
 
+// ValidationMiddleware creates a middleware that validates queries before execution.
 func ValidationMiddleware(validator Validator) query.QueryMiddleware {
 	return func(next query.QueryHandlerFunc) query.QueryHandlerFunc {
 		return func(ctx context.Context, q query.Query) (interface{}, error) {
@@ -21,20 +23,7 @@ func ValidationMiddleware(validator Validator) query.QueryMiddleware {
 					err,
 				)
 			}
-
 			return next(ctx, q)
 		}
 	}
-}
-
-type QueryValidatorFunc func(ctx context.Context, q query.Query) error
-
-func (f QueryValidatorFunc) ValidateQuery(ctx context.Context, q query.Query) error {
-	return f(ctx, q)
-}
-
-type NoOpValidator struct{}
-
-func (v *NoOpValidator) ValidateQuery(ctx context.Context, q query.Query) error {
-	return nil
 }

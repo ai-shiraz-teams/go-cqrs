@@ -10,13 +10,9 @@ import (
 
 type Bus interface {
 	Dispatch(ctx context.Context, cmd ICommand) error
-
 	Register(handler interface{}) error
-
 	RegisterFunc(commandName string, fn func(ctx context.Context, cmd ICommand) error) error
-
 	IsRegistered(commandName string) bool
-
 	GetRegisteredCommands() []string
 }
 

@@ -7,10 +7,12 @@ import (
 	buserror "go-cqrs/internal/error"
 )
 
+// Validator defines the interface for command validation middleware.
 type Validator interface {
 	ValidateCommand(ctx context.Context, cmd command.ICommand) error
 }
 
+// ValidationMiddleware creates a middleware that validates commands before execution.
 func ValidationMiddleware(validator Validator) command.Middleware {
 	return func(next command.ExecutorFunc) command.ExecutorFunc {
 		return func(ctx context.Context, cmd command.ICommand) error {
@@ -21,20 +23,7 @@ func ValidationMiddleware(validator Validator) command.Middleware {
 					err,
 				)
 			}
-
 			return next(ctx, cmd)
 		}
 	}
-}
-
-type ValidatorFunc func(ctx context.Context, cmd command.ICommand) error
-
-func (f ValidatorFunc) ValidateCommand(ctx context.Context, cmd command.ICommand) error {
-	return f(ctx, cmd)
-}
-
-type NoOpValidator struct{}
-
-func (v *NoOpValidator) ValidateCommand(ctx context.Context, cmd command.ICommand) error {
-	return nil
 }
