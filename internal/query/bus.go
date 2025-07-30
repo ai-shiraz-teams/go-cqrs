@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	buserror "go-cqrs/internal/error"
-	"go-cqrs/internal/metrics"
+	buserror "github.com/ai-shiraz-teams/go-cqrs/internal/error"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/metrics"
 )
 
 type QueryMiddleware func(next QueryHandlerFunc) QueryHandlerFunc

@@ -3,8 +3,8 @@ package middleware
 import (
 	"context"
 
-	"go-cqrs/internal/command"
-	buserror "go-cqrs/internal/error"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/command"
+	buserror "github.com/ai-shiraz-teams/go-cqrs/internal/error"
 )
 
 // Validator defines the interface for command validation middleware.

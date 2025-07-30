@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"go-cqrs/internal/command"
-	buserror "go-cqrs/internal/error"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/command"
+	buserror "github.com/ai-shiraz-teams/go-cqrs/internal/error"
 )
 
 func TimeoutMiddleware(timeout time.Duration) command.Middleware {

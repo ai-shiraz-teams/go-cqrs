@@ -19,7 +19,7 @@ A lightweight and flexible Command Query Responsibility Segregation (CQRS) imple
 ### Installation
 
 ```bash
-go get github.com/your-username/go-cqrs
+go get github.com/your-username/github.com/ai-shiraz-teams/go-cqrs
 ```
 
 ### Basic Usage
@@ -32,7 +32,7 @@ package main
 import (
     "context"
     "fmt"
-    "go-cqrs/internal/command"
+    "github.com/ai-shiraz-teams/go-cqrs/internal/command"
 )
 
 // Define your command
@@ -99,7 +99,7 @@ package main
 import (
     "context"
     "fmt"
-    "go-cqrs/internal/query"
+    "github.com/ai-shiraz-teams/go-cqrs/internal/query"
 )
 
 // Define your query
@@ -172,8 +172,8 @@ package main
 
 import (
     "context"
-    "go-cqrs/internal/command"
-    "go-cqrs/internal/middleware"
+    "github.com/ai-shiraz-teams/go-cqrs/internal/command"
+    "github.com/ai-shiraz-teams/go-cqrs/internal/middleware"
 )
 
 type Logger struct{}
@@ -211,9 +211,9 @@ package main
 import (
     "context"
     "time"
-    "go-cqrs/internal/query"
-    "go-cqrs/internal/query/middleware"
-    sharedmiddleware "go-cqrs/internal/middleware"
+    "github.com/ai-shiraz-teams/go-cqrs/internal/query"
+    "github.com/ai-shiraz-teams/go-cqrs/internal/query/middleware"
+    sharedmiddleware "github.com/ai-shiraz-teams/go-cqrs/internal/middleware"
 )
 
 func main() {
@@ -262,7 +262,7 @@ Queries represent read operations that retrieve data without side effects. They:
 The library provides structured error handling:
 
 ```go
-import "go-cqrs/internal/error"
+import "github.com/ai-shiraz-teams/go-cqrs/internal/error"
 
 // Check for specific error types
 if busErr, ok := err.(*buserror.BusError); ok {
