@@ -20,11 +20,11 @@ func (c FailCommand) CommandName() string {
 
 type FailHandler struct{}
 
-func (h *FailHandler) Handle(ctx context.Context, cmd FailCommand) error {
+func (h *FailHandler) Handle(ctx context.Context, cmd FailCommand) (interface{}, error) {
 	if cmd.ErrorMessage == "" {
-		return errors.New("intentional failure")
+		return nil, errors.New("intentional failure")
 	}
-	return errors.New(cmd.ErrorMessage)
+	return nil, errors.New(cmd.ErrorMessage)
 }
 
 type DetailedLogger struct{}
@@ -71,15 +71,15 @@ func main() {
 	ctx := context.Background()
 
 	cmd1 := FailCommand{}
-	err = bus.Dispatch(ctx, cmd1)
+	_, err = bus.Dispatch(ctx, cmd1)
 	_ = err
 
 	cmd2 := FailCommand{ErrorMessage: "custom validation failed"}
-	err = bus.Dispatch(ctx, cmd2)
+	_, err = bus.Dispatch(ctx, cmd2)
 	_ = err
 
 	cmd3 := FailCommand{ErrorMessage: "this is a very long error message that exceeds the maximum allowed length of 100 characters for testing validation failure"}
-	err = bus.Dispatch(ctx, cmd3)
+	_, err = bus.Dispatch(ctx, cmd3)
 	_ = err
 
 	registeredCommands := bus.GetRegisteredCommands()

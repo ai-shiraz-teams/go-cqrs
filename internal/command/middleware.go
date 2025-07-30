@@ -4,7 +4,7 @@ import "context"
 
 type Middleware func(next ExecutorFunc) ExecutorFunc
 
-type ExecutorFunc func(ctx context.Context, cmd ICommand) error
+type ExecutorFunc func(ctx context.Context, cmd ICommand) (interface{}, error)
 
 type MiddlewareChain struct {
 	middlewares []Middleware

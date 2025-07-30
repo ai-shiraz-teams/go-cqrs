@@ -10,9 +10,10 @@ import (
 
 func RecoveryCommandMiddleware() command.Middleware {
 	return func(next command.ExecutorFunc) command.ExecutorFunc {
-		return func(ctx context.Context, cmd command.ICommand) (err error) {
+		return func(ctx context.Context, cmd command.ICommand) (result interface{}, err error) {
 			defer func() {
 				if r := recover(); r != nil {
+					result = nil
 					switch x := r.(type) {
 					case string:
 						err = buserror.NewDispatchError(

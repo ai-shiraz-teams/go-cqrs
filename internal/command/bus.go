@@ -9,9 +9,9 @@ import (
 )
 
 type Bus interface {
-	Dispatch(ctx context.Context, cmd ICommand) error
+	Dispatch(ctx context.Context, cmd ICommand) (interface{}, error)
 	Register(handler interface{}) error
-	RegisterFunc(commandName string, fn func(ctx context.Context, cmd ICommand) error) error
+	RegisterFunc(commandName string, fn func(ctx context.Context, cmd ICommand) (interface{}, error)) error
 	IsRegistered(commandName string) bool
 	GetRegisteredCommands() []string
 }
@@ -28,9 +28,9 @@ func NewBus(middlewares ...Middleware) *DefaultBus {
 	}
 }
 
-func (b *DefaultBus) Dispatch(ctx context.Context, cmd ICommand) error {
+func (b *DefaultBus) Dispatch(ctx context.Context, cmd ICommand) (interface{}, error) {
 	if cmd == nil {
-		return buserror.NewDispatchError(
+		return nil, buserror.NewDispatchError(
 			buserror.ErrorCodeInvalidCommand,
 			"command cannot be nil",
 		)
@@ -38,7 +38,7 @@ func (b *DefaultBus) Dispatch(ctx context.Context, cmd ICommand) error {
 
 	commandName := cmd.CommandName()
 	if commandName == "" {
-		return buserror.NewDispatchError(
+		return nil, buserror.NewDispatchError(
 			buserror.ErrorCodeInvalidCommand,
 			"command name cannot be empty",
 		)
@@ -46,7 +46,7 @@ func (b *DefaultBus) Dispatch(ctx context.Context, cmd ICommand) error {
 
 	handler, exists := b.registry.getHandler(commandName)
 	if !exists {
-		return buserror.NewHandlerNotFoundError("command", commandName)
+		return nil, buserror.NewHandlerNotFoundError("command", commandName)
 	}
 
 	finalHandler := b.middlewareChain.Execute(handler)
@@ -64,7 +64,7 @@ func (b *DefaultBus) Register(handler interface{}) error {
 	return b.registry.register(handler)
 }
 
-func (b *DefaultBus) RegisterFunc(commandName string, fn func(ctx context.Context, cmd ICommand) error) error {
+func (b *DefaultBus) RegisterFunc(commandName string, fn func(ctx context.Context, cmd ICommand) (interface{}, error)) error {
 	if commandName == "" {
 		return buserror.NewHandlerRegistrationError(
 			"command name cannot be empty",
@@ -146,10 +146,10 @@ func (r *handlerRegistry) register(handler interface{}) error {
 	}
 
 	handlerValue := reflect.ValueOf(handler)
-	r.handlers[commandName] = func(ctx context.Context, cmd ICommand) error {
+	r.handlers[commandName] = func(ctx context.Context, cmd ICommand) (interface{}, error) {
 
 		if !reflect.TypeOf(cmd).AssignableTo(commandType) {
-			return buserror.NewDispatchError(
+			return nil, buserror.NewDispatchError(
 				buserror.ErrorCodeInvalidCommand,
 				"command type mismatch",
 			)
@@ -160,16 +160,24 @@ func (r *handlerRegistry) register(handler interface{}) error {
 			reflect.ValueOf(cmd),
 		})
 
-		if len(results) > 0 && !results[0].IsNil() {
-			return results[0].Interface().(error)
+		var result interface{}
+		var err error
+
+		if len(results) >= 1 && results[0].IsValid() && results[0].CanInterface() {
+			result = results[0].Interface()
 		}
-		return nil
+
+		if len(results) >= 2 && results[1].IsValid() && !results[1].IsNil() {
+			err = results[1].Interface().(error)
+		}
+
+		return result, err
 	}
 
 	return nil
 }
 
-func (r *handlerRegistry) registerFunc(commandName string, fn func(ctx context.Context, cmd ICommand) error) error {
+func (r *handlerRegistry) registerFunc(commandName string, fn func(ctx context.Context, cmd ICommand) (interface{}, error)) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -213,9 +221,9 @@ func (r *handlerRegistry) getRegisteredCommands() []string {
 
 func (r *handlerRegistry) validateHandleMethod(methodType reflect.Type) error {
 
-	if methodType.NumIn() != 3 || methodType.NumOut() != 1 {
+	if methodType.NumIn() != 3 || methodType.NumOut() != 2 {
 		return buserror.NewHandlerRegistrationError(
-			"Handle method must have signature: Handle(context.Context, CommandType) error",
+			"Handle method must have signature: Handle(context.Context, CommandType) (interface{}, error)",
 			nil,
 		)
 	}
@@ -237,9 +245,9 @@ func (r *handlerRegistry) validateHandleMethod(methodType reflect.Type) error {
 	}
 
 	errorInterface := reflect.TypeOf((*error)(nil)).Elem()
-	if !methodType.Out(0).Implements(errorInterface) {
+	if !methodType.Out(1).Implements(errorInterface) {
 		return buserror.NewHandlerRegistrationError(
-			"return type must be error",
+			"second return type must be error",
 			nil,
 		)
 	}

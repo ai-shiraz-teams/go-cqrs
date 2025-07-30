@@ -19,9 +19,9 @@ func (c SayHelloCommand) CommandName() string {
 
 type SayHelloHandler struct{}
 
-func (h *SayHelloHandler) Handle(ctx context.Context, cmd SayHelloCommand) error {
+func (h *SayHelloHandler) Handle(ctx context.Context, cmd SayHelloCommand) (interface{}, error) {
 
-	return nil
+	return "Hello, " + cmd.Name + "!", nil
 }
 
 type SimpleLogger struct{}
@@ -55,6 +55,7 @@ func main() {
 	ctx := context.Background()
 	cmd := SayHelloCommand{Name: "World"}
 
-	err = bus.Dispatch(ctx, cmd)
+	result, err := bus.Dispatch(ctx, cmd)
+	_ = result
 	_ = err
 }

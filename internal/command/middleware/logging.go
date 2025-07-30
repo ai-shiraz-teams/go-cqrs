@@ -17,13 +17,13 @@ type Logger interface {
 // LoggingMiddleware creates a middleware that logs command execution details.
 func LoggingMiddleware(logger Logger) command.Middleware {
 	return func(next command.ExecutorFunc) command.ExecutorFunc {
-		return func(ctx context.Context, cmd command.ICommand) error {
+		return func(ctx context.Context, cmd command.ICommand) (interface{}, error) {
 			commandName := cmd.CommandName()
 			start := time.Now()
 
 			logger.LogCommandStart(ctx, commandName)
 
-			err := next(ctx, cmd)
+			result, err := next(ctx, cmd)
 			duration := time.Since(start)
 
 			if err != nil {
@@ -32,7 +32,7 @@ func LoggingMiddleware(logger Logger) command.Middleware {
 				logger.LogCommandSuccess(ctx, commandName, duration)
 			}
 
-			return err
+			return result, err
 		}
 	}
 }

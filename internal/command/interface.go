@@ -7,5 +7,5 @@ type ICommand interface {
 }
 
 type ICommandHandler[T ICommand] interface {
-	Handle(ctx context.Context, command T) error
+	Handle(ctx context.Context, command T) (interface{}, error)
 }

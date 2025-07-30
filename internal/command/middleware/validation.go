@@ -15,9 +15,9 @@ type Validator interface {
 // ValidationMiddleware creates a middleware that validates commands before execution.
 func ValidationMiddleware(validator Validator) command.Middleware {
 	return func(next command.ExecutorFunc) command.ExecutorFunc {
-		return func(ctx context.Context, cmd command.ICommand) error {
+		return func(ctx context.Context, cmd command.ICommand) (interface{}, error) {
 			if err := validator.ValidateCommand(ctx, cmd); err != nil {
-				return buserror.NewDispatchErrorWithCause(
+				return nil, buserror.NewDispatchErrorWithCause(
 					buserror.ErrorCodeInvalidCommand,
 					"command validation failed",
 					err,

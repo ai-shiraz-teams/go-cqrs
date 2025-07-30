@@ -10,21 +10,28 @@ import (
 
 func TimeoutMiddleware(timeout time.Duration) command.Middleware {
 	return func(next command.ExecutorFunc) command.ExecutorFunc {
-		return func(ctx context.Context, cmd command.ICommand) error {
+		return func(ctx context.Context, cmd command.ICommand) (interface{}, error) {
 
 			ctx, cancel := context.WithTimeout(ctx, timeout)
 			defer cancel()
 
-			done := make(chan error, 1)
+			done := make(chan struct {
+				result interface{}
+				err    error
+			}, 1)
 			go func() {
-				done <- next(ctx, cmd)
+				result, err := next(ctx, cmd)
+				done <- struct {
+					result interface{}
+					err    error
+				}{result: result, err: err}
 			}()
 
 			select {
-			case err := <-done:
-				return err
+			case res := <-done:
+				return res.result, res.err
 			case <-ctx.Done():
-				return buserror.NewDispatchErrorWithCause(
+				return nil, buserror.NewDispatchErrorWithCause(
 					buserror.ErrorCodeDispatchFailed,
 					"command execution timed out",
 					ctx.Err(),
