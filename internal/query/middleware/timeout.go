@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	buserror "go-cqrs/internal/error"
-	"go-cqrs/internal/query"
+	buserror "github.com/ai-shiraz-teams/go-cqrs/internal/error"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/query"
 )
 
 func TimeoutMiddleware(timeout time.Duration) query.QueryMiddleware {

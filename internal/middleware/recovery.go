@@ -3,9 +3,9 @@ package middleware
 import (
 	"context"
 
-	"go-cqrs/internal/command"
-	buserror "go-cqrs/internal/error"
-	"go-cqrs/internal/query"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/command"
+	buserror "github.com/ai-shiraz-teams/go-cqrs/internal/error"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/query"
 )
 
 func RecoveryCommandMiddleware() command.Middleware {

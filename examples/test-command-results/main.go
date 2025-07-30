@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"go-cqrs/internal/command"
-	"go-cqrs/internal/command/middleware"
-	sharedmiddleware "go-cqrs/internal/middleware"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/command"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/command/middleware"
+	sharedmiddleware "github.com/ai-shiraz-teams/go-cqrs/internal/middleware"
 )
 
 // Test command that returns different types of results

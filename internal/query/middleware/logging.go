@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"go-cqrs/internal/query"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/query"
 )
 
 // Logger defines the interface for query logging middleware.

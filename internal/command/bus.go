@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"sync"
 
-	buserror "go-cqrs/internal/error"
+	buserror "github.com/ai-shiraz-teams/go-cqrs/internal/error"
 )
 
 type Bus interface {

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	sharedmiddleware "go-cqrs/internal/middleware"
-	"go-cqrs/internal/query"
-	"go-cqrs/internal/query/middleware"
+	sharedmiddleware "github.com/ai-shiraz-teams/go-cqrs/internal/middleware"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/query"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/query/middleware"
 )
 
 type User struct {
