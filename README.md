@@ -5,6 +5,7 @@ A lightweight and flexible Command Query Responsibility Segregation (CQRS) imple
 ## Features
 
 - **Type-safe Command and Query handling**: Leverage Go's type system for compile-time safety
+- **Command results support**: Commands can optionally return results (IDs, confirmations, created entities, etc.)
 - **Middleware support**: Easily add cross-cutting concerns like logging, validation, and recovery
 - **Flexible registration**: Register handlers with compile-time type checking
 - **Clean architecture**: Promote separation of concerns in your applications
@@ -44,13 +45,28 @@ func (c CreateUserCommand) CommandName() string {
     return "create_user"
 }
 
-// Define your handler
+// Define your result type
+type CreatedUser struct {
+    ID    int    `json:"id"`
+    Name  string `json:"name"`
+    Email string `json:"email"`
+}
+
+// Define your handler - commands can return results!
 type CreateUserHandler struct{}
 
-func (h *CreateUserHandler) Handle(ctx context.Context, cmd CreateUserCommand) error {
+func (h *CreateUserHandler) Handle(ctx context.Context, cmd CreateUserCommand) (interface{}, error) {
     // Your business logic here
     // Process the command (save to database, send email, etc.)
-    return nil
+    
+    // Commands can return results (e.g., created entity, ID, confirmation, etc.)
+    user := CreatedUser{
+        ID:    42, // In real world, this would come from database
+        Name:  cmd.Name,
+        Email: cmd.Email,
+    }
+    
+    return user, nil
 }
 
 func main() {
@@ -60,12 +76,17 @@ func main() {
     // Register handler
     bus.Register(&CreateUserHandler{})
     
-    // Execute command
+    // Execute command and receive result
     ctx := context.Background()
     cmd := CreateUserCommand{Name: "John Doe", Email: "john@example.com"}
-    err := bus.Execute(ctx, cmd)
+    result, err := bus.Dispatch(ctx, cmd)
     if err != nil {
         panic(err)
+    }
+    
+    // Type assert and use the returned result
+    if user, ok := result.(CreatedUser); ok {
+        fmt.Printf("User created with ID: %d\n", user.ID)
     }
 }
 ```
@@ -216,9 +237,11 @@ func main() {
 
 Commands represent write operations or actions that change the state of your system. They:
 
-- Should not return data (except errors)
-- Must implement the `Command` interface
-- Are handled by command handlers implementing `CommandHandler[T]`
+- **Can return results**: Commands may return data such as created entity IDs, confirmation objects, or partial results
+- **Handle side effects**: Process business logic, database operations, external API calls, etc.
+- Must implement the `ICommand` interface
+- Are handled by command handlers implementing `ICommandHandler[T]`
+- Return `(interface{}, error)` - the result can be any type including nil
 
 ### Queries
 
@@ -259,6 +282,7 @@ if busErr, ok := err.(*buserror.BusError); ok {
 The `examples/` directory contains comprehensive examples:
 
 - `command-success/`: Basic command execution
+- `command-with-result/`: Command that returns a result (ID, created entity, etc.)
 - `command-error/`: Command error handling
 - `query-success/`: Basic query execution  
 - `query-cache/`: Query caching with middleware
