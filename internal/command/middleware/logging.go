@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"go-cqrs/internal/command"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/command"
 )
 
 // Logger defines the interface for command logging middleware.

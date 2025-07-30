@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"go-cqrs/internal/query"
+	"github.com/ai-shiraz-teams/go-cqrs/internal/query"
 )
 
 type CacheEntry struct {
